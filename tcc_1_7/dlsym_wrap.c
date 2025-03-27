@@ -1,5 +1,7 @@
 #define dlsym dlsym_wrap
 
+void *dlsym_wrap(void *handle, char *symbol);
+
 #include "tcc.c"
 
 typedef struct TCCSyms {
@@ -52,23 +54,11 @@ int sigemptyset_wrap(){
   exit(1);
 }
 
-int strtol_wrap(){
-  printf("strtol unimplemented\n");
-  exit(1);
-}
-
-int strtold_wrap(){
-  printf("strtold unimplemented\n");
-  exit(1);
-}
-
 // dummy declarations to create required symbols
 int close();
 int fputc();
 int open();
 int read();
-int strtod();
-int strtof();
 
 // TCCSyms must be defined here, I think there is a bug around global data
 // relocations
@@ -117,10 +107,6 @@ TCCSyms tcc_syms[] = {
 	{ "strdup", &strdup, },
 	{ "strlen", &strlen, },
 	{ "strrchr", &strrchr, },
-	{ "strtod", &strtod, },
-	{ "strtof", &strtof, },
-	{ "strtol", &strtol_wrap, },
-	{ "strtold", &strtold_wrap, },
 	{ "vfprintf", &vfprintf, },
 	{ "blah", &blah_wrap, },
 	{ NULL, NULL },

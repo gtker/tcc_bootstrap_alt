@@ -468,8 +468,7 @@ void printline2(void)
 void error(const char *fmt, ...)
 {
     va_list ap;
-//    va_start(ap, fmt);
-    ap = ((char *)&(fmt)) + sizeof(int);
+    va_start(ap, fmt);
     printline();
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
@@ -3986,7 +3985,7 @@ int main(int argc, char **argv)
                 -1, 0);
     glo_base=glo;
     printf("glo: %x %x\n",glo,glo_base);
-    memset((void *)glo, 0, DATA_SIZE);
+    //memset((void *)glo, 0, DATA_SIZE);
     prog = (int)mmap(NULL, TEXT_SIZE,
                 PROT_EXEC | PROT_READ | PROT_WRITE,
                 MAP_PRIVATE | MAP_ANONYMOUS,
