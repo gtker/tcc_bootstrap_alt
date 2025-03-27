@@ -18,7 +18,74 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <tcclib.h>
+#include <stddef.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+#define FALSE 0
+#define TRUE 1
+
+#define PROT_READ      0x1
+#define PROT_WRITE     0x2
+#define PROT_EXEC      0x4
+#define MAP_PRIVATE    0x02
+#define MAP_ANONYMOUS  0x20
+
+char* int2str(int x, int base, int signed_p)
+{
+	/* Be overly conservative and save space for 32binary digits and padding null */
+	char* p = calloc(34, sizeof(char));
+	/* if calloc fails return null to let calling code deal with it */
+	if(NULL == p) return p;
+
+	p = p + 32;
+	unsigned i;
+	int sign_p = FALSE;
+	char* table = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+	if(signed_p && (10 == base) && (0 != (x & 0x80000000)))
+	{
+		/* Truncate to 31bits */
+		i = -x & 0x7FFFFFFF;
+		if(0 == i) return "-2147483648";
+		sign_p = TRUE;
+	} /* Truncate to 32bits */
+	else i = x & (0x7FFFFFFF + 0x80000000); /* M2-Planet/cc_* can't handle large signed numbers in literals */
+
+	do
+	{
+		p[0] = table[i % base];
+		p = p - 1;
+		i = i / base;
+	} while(0 < i);
+
+	if(sign_p)
+	{
+		p[0] = '-';
+		p = p - 1;
+	}
+
+	return p + 1;
+}
+
+void puts_num(int x){
+  char *s = int2str(x, 10, 0);
+  puts(s);
+}
+
+void *mmap(void *addr, size_t len, int prot, int flags, int fildes, int off)
+{
+	puts("mmap wrapper: ");
+	puts_num(addr);
+	puts_num(len);
+	puts_num(prot);
+	puts_num(flags);
+	puts_num(fildes);
+	puts_num(off);
+	return malloc(len);
+}
 
 /* these sizes are dummy for unix, because malloc() does not use
    memory when the pages are not used */
