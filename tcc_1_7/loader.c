@@ -205,12 +205,12 @@ int load_obj(void){
       off=r32(global_relocs_base+goff+4);
       addr=(unsigned int)(off+prog);
       switch(r32(global_relocs_base+goff)) {
-        case RELOC_ADDR32:
+        case RELOC_ADDR32 :
           printf("Reloc type RELOC_ADDR32 at %x\n",addr);
           addr_ptr = (int*)addr;
           *addr_ptr=a;
           break;
-        case RELOC_REL32:
+        case RELOC_REL32 :
           printf("Reloc type RELOC_REL32 at %x\n",addr);
           addr_ptr = (int*)addr;
           *addr_ptr = a - addr - 4;
