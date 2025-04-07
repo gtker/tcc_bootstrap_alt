@@ -87,7 +87,8 @@ int r32(int o){
 }
 
 int w32(int o,int v){
-  *(int *)o=v;
+  int* optr = (int*)o;
+  *optr=v;
 }
 
 int load_obj(void){
@@ -191,6 +192,7 @@ int load_obj(void){
   int goff=0;
   int off;
   int addr;
+  int* addr_ptr;
   while(global_relocs_table<m){
     l=strlen((char *)global_relocs_table);
     a=dlsym(NULL,(char *)global_relocs_table);
@@ -205,11 +207,13 @@ int load_obj(void){
       switch(r32(global_relocs_base+goff)) {
         case RELOC_ADDR32:
           printf("Reloc type RELOC_ADDR32 at %x\n",addr);
-          *(int *)addr=a;
+          addr_ptr = (int*)addr;
+          *addr_ptr=a;
           break;
         case RELOC_REL32:
           printf("Reloc type RELOC_REL32 at %x\n",addr);
-          *(int *)addr = a - addr - 4;
+          addr_ptr = (int*)addr;
+          *addr_ptr = a - addr - 4;
           break;
       }
       goff=goff+8;
