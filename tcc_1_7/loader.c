@@ -245,5 +245,5 @@ int main(int argc, char **argv)
     }
 
   printf("running loader\n");
-  return (*t)(argc - optind, argv + optind);
+  return t(argc - optind, argv + optind);
 }
