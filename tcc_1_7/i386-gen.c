@@ -52,7 +52,8 @@ typedef struct GFuncContext {
 
 void g(int c)
 {
-    *(char *)ind++ = c;
+    char* charind = (char*)ind;
+    *charind++ = c;
 }
 
 void o(int c)
@@ -100,11 +101,13 @@ int is_data(int a){
 }
 
 void mk_reloc(int addr,int val){
+    int* intrelocs = (int*)relocs;
     if(val==0){
       return;
     }
     if(is_prog(addr)){
-      *(int *)relocs=addr-prog;
+      intrelocs = (int*)relocs;
+      *intrelocs=addr-prog;
       relocs=relocs+4;
     } else {
       printf("Can't handle relocs in data\n");
@@ -113,14 +116,18 @@ void mk_reloc(int addr,int val){
 
 
     if(is_data(val)){
-      *(int *)relocs=val-glo_base;
+      intrelocs = (int*)relocs;
+      *intrelocs=val-glo_base;
       relocs=relocs+4;
-      *(int *)relocs=0;
+      intrelocs = (int*)relocs;
+      *intrelocs=0;
       relocs=relocs+4;
     } else {
-      *(int *)relocs=val-prog;
+      intrelocs = (int*)relocs;
+      *intrelocs=val-prog;
       relocs=relocs+4;
-      *(int *)relocs=1;
+      intrelocs = (int*)relocs;
+      *intrelocs=1;
       relocs=relocs+4;
     }
 //   printf("val: %d %d\n",val,is_data(val));
@@ -129,9 +136,11 @@ void mk_reloc(int addr,int val){
 void mk_reloc_global(int type,int addr){
 //return;
 printf("mk_reloc_global: %d\n",global_relocs);
-  *(int *)global_relocs=type;
+  int* intglobal_relocs = (int*)global_relocs;
+  *intglobal_relocs=type;
   global_relocs+=4;
-  *(int *)global_relocs=addr-prog;
+  intglobal_relocs = (int*)global_relocs;
+  *intglobal_relocs=addr-prog;
   global_relocs+=4;
 }
 
@@ -139,6 +148,7 @@ printf("mk_reloc_global: %d\n",global_relocs);
 int greloc_patch(Sym *s, int val)
 {
     Reloc *p, *p1;
+    int* intpaddr;
 int count=0;
     p = (Reloc *)s->c;
     while (p != NULL) {
@@ -157,7 +167,8 @@ exit(1);
 //    mk_reloc(p->addr,val);
   }
 }
-            *(int *)p->addr = val;
+            intpaddr = (int*)p->addr;
+            *intpaddr = val;
             break;
         case RELOC_REL32:
 if(reloc_global && relocs){
@@ -166,7 +177,8 @@ mk_reloc_global(RELOC_REL32,p->addr);
 //  global_relocs=global_relocs+12;
 
 }
-            *(int *)p->addr = val - p->addr - 4;
+            intpaddr = (int*)p->addr;
+            *intpaddr = val - p->addr - 4;
             break;
         }
         free(p);
@@ -181,9 +193,11 @@ return count;
 void gsym_addr(t, a)
 {
     int n;
+    int* intt;
     while (t) {
-        n = *(int *)t; /* next value */
-        *(int *)t = a - t - 4;
+        intt = (int*)t;
+        n = *intt; /* next value */
+        *intt = a - t - 4;
         t = n;
     }
 }
@@ -201,7 +215,8 @@ void gsym(t)
 int oad(int c, int s)
 {
     o(c);
-    *(int *)ind = s;
+    int* intind = (int*)ind;
+    *intind = s;
     s = ind;
     ind = ind + 4;
     return s;
@@ -382,11 +397,14 @@ printf("gfunc_call: %x %x\n",ind,vtop->c.ul - ind - 5);
   char *str="memcpy";
   strcpy((char *)global_relocs_table,str);
   global_relocs_table+=strlen(str)+1;
-  *(int *)global_relocs_table=1;
+  int* intrelocs = (int*)global_relocs_table;
+  *intrelocs=1;
   global_relocs_table+=4;
-  *(int *)global_relocs=RELOC_REL32;
+  intrelocs = (int*)global_relocs;
+  *intrelocs=RELOC_REL32;
   global_relocs+=4;
-  *(int *)global_relocs=ind+1-prog;
+  intrelocs = (int*)global_relocs;
+  *intrelocs=ind+1-prog;
   global_relocs+=4;
 
 }
