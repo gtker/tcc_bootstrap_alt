@@ -3215,6 +3215,9 @@ void decl_designator(int t, int c,
 void init_putv(int t, int c, int v, int is_expr)
 {
     int saved_global_expr, bt;
+    char* charc;
+    short* shortc;
+    int* intc;
 
     if ((t & VT_VALMASK) == VT_CONST) {
         if (is_expr) {
@@ -3231,13 +3234,16 @@ void init_putv(int t, int c, int v, int is_expr)
         bt = vtop->t & VT_BTYPE;
         switch(bt) {
         case VT_BYTE:
-            *(char *)c = vtop->c.i;
+            charc = (char*)c;
+            *charc = vtop->c.i;
             break;
         case VT_SHORT:
-            *(short *)c = vtop->c.i;
+            shortc = (short*)c;
+            *shortc = vtop->c.i;
             break;
         default:
-            *(int *)c = vtop->c.i;
+            intc = (int*)c;
+            *intc = vtop->c.i;
             break;
         }
         vpop();
@@ -3740,7 +3746,8 @@ if(reloc){
   printf("resolve_extern_syms: %s %d\n",str,count);
   strcpy((char *)global_relocs_table,str);
   global_relocs_table+=strlen(str)+1;
-  *(int *)global_relocs_table=count;
+  int* intglobal_relocs_table = (int*)global_relocs_table;
+  *intglobal_relocs_table=count;
   global_relocs_table+=4;
 }
             }
@@ -3766,7 +3773,8 @@ int r32(int o){
 
 int w32(int o,int v){
 // return 0;
-  *(int *)o=v;
+  int* into = (int*)o;
+  *into=v;
 }
 void gen_obj(int e){
   printf("Generating object file\n");
@@ -3925,6 +3933,7 @@ int load_obj(void){
   int goff=0;
   int off;
   int addr;
+  int* intaddr;
   while(global_relocs_table<m){
     l=strlen((char *)global_relocs_table);
     a=dlsym(NULL,(char *)global_relocs_table);
@@ -3939,11 +3948,13 @@ int load_obj(void){
       switch(r32(global_relocs_base+goff)) {
         case RELOC_ADDR32:
           printf("Reloc type RELOC_ADDR32 at %x\n",addr);
-          *(int *)addr=a;
+          intaddr = (int*)addr;
+          *intaddr=a;
           break;
         case RELOC_REL32:
           printf("Reloc type RELOC_REL32 at %x\n",addr);
-          *(int *)addr = a - addr - 4;
+          intaddr = (int*)addr;
+          *intaddr = a - addr - 4;
           break;
       }
       goff=goff+8;
